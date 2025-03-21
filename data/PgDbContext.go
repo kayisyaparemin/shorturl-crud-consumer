@@ -8,7 +8,7 @@ import (
 )
 
 func ConnectDB() (*gorm.DB, error) {
-	response := new(responses.DbSettings)
+	response := new(responses.Settings)
 	err := utilities.GetJSON("http://gatewayapi.test-gateways/configuration-services/configurations/hangikredi.shorturlservice.postgres.connectionstring", response)
 	if err != nil {
 		return nil, err

@@ -5,10 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
-	"github.com/elastic/go-elasticsearch/v8"
 	response "urlshortener-crud-consumer/models/responses"
+
+	"github.com/elastic/go-elasticsearch/v8"
 )
 type IElasticSearchService interface{
 	CreateIndex() (string, error)
@@ -21,17 +23,23 @@ type ElasticSearchService struct {
 	aliasName string
 }
 
-func NewElasticSearchService(env string, urls []string, timeout time.Duration) (*ElasticSearchService, error) {
+func NewElasticSearchService(env string, urls []string, timeoutMs int) (*ElasticSearchService, error) {
+	httpClient := &http.Client{
+		Timeout: time.Duration(timeoutMs) * time.Millisecond,
+	}
+
 	cfg := elasticsearch.Config{
 		Addresses: urls,
-		Transport: nil,
+		Transport: httpClient.Transport,
 	}
+
 	client, err := elasticsearch.NewClient(cfg)
 	if err != nil {
 		return nil, err
 	}
 
 	aliasName := fmt.Sprintf("shorturl-%s", strings.ToLower(env))
+
 	return &ElasticSearchService{
 		client:    client,
 		aliasName: aliasName,

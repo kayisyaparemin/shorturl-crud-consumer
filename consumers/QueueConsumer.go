@@ -17,14 +17,15 @@ func failOnError(err error, msg string) {
 	}
 }
 func Consume(services *extensions.Services) {
-	response := new(responses.RabbitSettings)
+	response := new([]responses.Settings)
 	utilities.GetJSON("http://configurationapi.test-microservices/api/configurations/rabbitqueuesettings/list", response)
 
-	conn, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:5672/%s",
-		response.UserName,
-		response.Password,
-		response.Host,
-		strings.ToLower(response.VirtualHost),
+	rabbitSettings := responses.GetRabbitSettings(response)
+	conn, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s/%s",
+	rabbitSettings.UserName,
+	rabbitSettings.Password,
+	rabbitSettings.Host,
+	strings.ToLower(rabbitSettings.VirtualHost),
 	))
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
