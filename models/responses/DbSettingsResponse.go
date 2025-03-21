@@ -1,5 +1,5 @@
 package responses
-type ConfResponse struct {
+type DbSettings struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
