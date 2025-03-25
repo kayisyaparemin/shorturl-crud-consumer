@@ -1,12 +1,12 @@
 package service
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"log"
 	"sync"
 	"urlshortener-crud-consumer/data/repositories"
 	"urlshortener-crud-consumer/models/entities"
-	"urlshortener-crud-consumer/models/queues"
+	//"urlshortener-crud-consumer/models/queues"
 	"urlshortener-crud-consumer/models/requests"
 	"urlshortener-crud-consumer/models/responses"
 	"urlshortener-crud-consumer/utilities"
@@ -28,6 +28,7 @@ func (uss *UrlShorthenerService) StartProcess(model *requests.QueueModel) {
 }
 
 func (uss *UrlShorthenerService) createShortUrlAsync(model *requests.QueueModel) {
+	/*
 	if model.Email == "" {
 		model.Email = "Teknoloji-Transformers@hangikredi.com"
 	}
@@ -39,18 +40,18 @@ func (uss *UrlShorthenerService) createShortUrlAsync(model *requests.QueueModel)
 		ExtraParameters: extraParameterJSON,
 		Subject:         "Kampanya Excel Yüklemesi",
 		Body:            "Excel yüklenmesine başlandı.",
-	})
+	})*/
 
 	const partialSize = 2000
 
 	keysPartition, err := uss.repo.GetAvailableKeys(model.Size)
 	if err != nil {
-		log.Panic(err)
+		log.Printf("Error: %v\n",err)
 	}
 
 	indexName, err := uss.Elastic.CreateIndex()
 	if err != nil {
-		log.Panic(err)
+		log.Printf("Error: %v\n",err)
 	}
 	taskCount := (len(model.TelephoneNumbers) + partialSize - 1) / partialSize
 
@@ -76,13 +77,14 @@ func (uss *UrlShorthenerService) createShortUrlAsync(model *requests.QueueModel)
 		close(telephoneChannel)
 		close(keyChannel)
 	}()
+	/*
 	uss.Queue.Send(queues.MailQueueModel{
 		To:              []string{model.Email},
 		ServiceProvider: queues.ServiceProviderEnumType(queues.Emarsys),
 		ExtraParameters: extraParameterJSON,
 		Subject:         "Kampanya Excel Yüklemesi",
 		Body:            "Excel yükleme tamamlandı.",
-	})
+	}) */
 }
 
 func (uss *UrlShorthenerService) UpdateShortUrl(telephones []string, keys []entities.UrlShortener, indexName string, channelCampaignId int, partialId int, longUrl string, userId int, wg *sync.WaitGroup) {

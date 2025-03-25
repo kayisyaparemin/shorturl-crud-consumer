@@ -17,7 +17,7 @@ type Services struct {
 func RegisterServices() *Services {
 	database, err := dataContext.ConnectDB()
 	if err != nil {
-		log.Panic(err)
+		log.Printf("Error: %v\n",err)
 	}
 
 	repo := repositories.NewUrlShortenerRepository(database)
@@ -28,7 +28,7 @@ func RegisterServices() *Services {
 
 	elasticSearchService, err := service.NewElasticSearchService("test", strings.Split(elasticSettings.Url,","), elasticSettings.TimeOut)
 	if err != nil {
-		log.Panic(err)
+		log.Printf("Error: %v\n",err)
 	}
 
 	queueService := service.NewQueueService()
